@@ -15,7 +15,7 @@
         const app = new PIXI.Application({
             width: 640,
             height: 480,
-            backgroundColor:0xCACACA,
+            backgroundColor:0x2A8BB5,
         });
         
         // give us the view
@@ -44,39 +44,34 @@
         const bubble5 = PIXI.Sprite.from("images/bubble.png");
         const bubble6 = PIXI.Sprite.from("images/bubble.png");
 
+        // load background
+        const coralReef = PIXI.Sprite.from("images/coral-reef.png");
+
+        // filter
+        const radius = 100;
+        const blurSize = 32;
+        const circle = new PIXI.Graphics().beginFill(0xFF0000).drawCircle(radius + blurSize, radius + blurSize, radius).endFill();
+        circle.filters = [new PIXI.filters.BlurFilter(blurSize)];
+        const bounds = new PIXI.Rectangle(0, 0, (radius + blurSize) * 2, (radius + blurSize) * 2);
+        const texture = app.renderer.generateTexture(circle, PIXI.SCALE_MODES.NEAREST, 1, bounds);
+        const focus = new PIXI.Sprite(texture);
+
+        // place background
+        coralReef.anchor.set(0.5);
+        coralReef.scale.set(.7);
+        coralReef.position.set(320, 240);
+
+        // scale + position bubbles
         const bubbles = [bubble1, bubble2, bubble3, bubble4, bubble5, bubble6]
 
         bubbles.forEach(bubble => {
             bubble.scale.set(.15);
             bubble.anchor.set(0.5);
             bubble.position.set(Math.random() * 640, Math.random() * 480);
+            bubble.scale.set(Math.random() / 5);
         })
 
-        //scale the school
-        cuteFish1.scale.set(-0.05, .05);
-        cuteFish2.scale.set(-0.05, .05);
-        cuteFish3.scale.set(-0.05, .05);
-        cuteFish4.scale.set(-0.05, .05);
-        cuteFish5.scale.set(-0.05, .05);
-        cuteFish6.scale.set(-0.05, .05);
-        cuteFish7.scale.set(-0.05, .05);
-
-        //position the school
-        cuteFish1.position.set(100, 120);
-        cuteFish2.position.set(140, 130);
-        cuteFish3.position.set(120, 140);
-        cuteFish4.position.set(160, 100);
-        cuteFish5.position.set(180, 120);
-        cuteFish6.position.set(200, 130);
-        cuteFish7.position.set(160, 150);
-
-
-        // load background
-        const coralReef = PIXI.Sprite.from("images/coral-reef.png");
-        coralReef.anchor.set(0.5);
-        coralReef.scale.set(.7);
-        coralReef.position.set(320, 240);
-
+        // set anchor, scale, and place 4 main fish
         yellowFish.anchor.set(0.5);
         parrotFish.anchor.set(0.5);
         redFish.anchor.set(0.5);
@@ -95,19 +90,20 @@
         redFish.position.set(350, 200);
         byFish.position.set(500, 400);
 
-
+        // create container to hold school of fish
         const fishContainer = new PIXI.Container();
         fishContainer.position.set(0,0);
 
-        fishContainer.addChild(cuteFish1);
-        fishContainer.addChild(cuteFish2);
-        fishContainer.addChild(cuteFish3);
-        fishContainer.addChild(cuteFish4);
-        fishContainer.addChild(cuteFish5);
-        fishContainer.addChild(cuteFish6);
-        fishContainer.addChild(cuteFish7);
+        // scale + position school of fish
+        const cuteFish = [cuteFish1, cuteFish2, cuteFish3, cuteFish4, cuteFish5, cuteFish6, cuteFish7];
+        
+        cuteFish.forEach(fish => {
+            fish.scale.set(-0.05, .05);
+            fish.position.set(Math.random() * 100 + 100, Math.random() * 100 + 100);
+            fishContainer.addChild(fish);
+        })
 
-        // add sprites to stage
+        // add sprites to stage ( in correct order )
         app.stage.addChild(coralReef);
 
         app.stage.addChild(fishContainer);
@@ -124,13 +120,26 @@
         app.stage.addChild(redFish);
         app.stage.addChild(byFish);
 
+        app.stage.addChild(focus);
+        coralReef.mask = focus;
 
+        app.stage.interactive = true;
+        app.stage.on('mousemove', pointerMove);
+
+        function pointerMove(event) {
+            focus.position.x = event.data.global.x - focus.width / 2;
+            focus.position.y = event.data.global.y - focus.height / 2;
+        }
+
+        // loop de loop and pull, and your shoe's all lookin good
         let loop = () => {
+            // make a series of diff wobbles
             let time = Date.now();
             let wobble = Math.sin(time / 1000) * 10;
             let wobble2 = Math.sin(time / 500) * 5;
-            let wobble3 = Math.sin(time/200);
+            let wobble3 = Math.sin(time / 200);
 
+            // apply wobbles to main fish on different axes
             yellowFish.y = 100 + wobble;
             parrotFish.y = 300 + wobble2;
 
@@ -138,21 +147,27 @@
             byFish.x = 500 + wobble2;
             byFish.y = 400 + wobble;
 
-            //move school
+            // move school
             fishContainer.x += 1;
             fishContainer.y += wobble3;
 
             if (fishContainer.x > 640) {
                 fishContainer.x = -200;
-                fishContainer.y = Math.random() * 480;
+                fishContainer.y = Math.random() * 430;
+
+                cuteFish.forEach(fish => {
+                    fish.position.set(Math.random() * 100 + 100, Math.random() * 100 + 100);
+                })
             }
 
+            // move bubbles
             bubbles.forEach((bubble) => {
                 bubble.position.y -= 1;
 
                 if (bubble.position.y < 0) {
                     bubble.position.y = 500;
                     bubble.position.x = Math.random() * 640;
+                    bubble.scale.set(Math.random() / 5);
                 }
             })
 
