@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All the Fishes</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
+</head>
+<body>
+    
+    <script>
+        // the app
+        const app = new PIXI.Application({
+            width: 640,
+            height: 480,
+            backgroundColor:0x2A8BB5,
+        });
+
+         // give us the view
+        document.body.appendChild(app.view);
+        
+        function makeButton() {
+            // create container
+            let ourButton = new PIXI.Container();
+            ourButton.interactive = true;
+
+            // create button body
+            let buttonBody = new PIXI.Graphics();
+            buttonBody.beginFill(0xEEEEEE);
+            buttonBody.drawRect(0, 0, 200, 100);
+            ourButton.addChild(buttonBody);
+
+            let buttonText = new PIXI.Text('Button Text');
+            buttonText.anchor.set(.5);
+            buttonText.position.set(buttonBody.width / 2, buttonBody.height / 2);
+            ourButton.addChild(buttonText);
+
+            ourButton.label = buttonText;
+            ourButton.body = buttonBody;
+
+            // click listener
+            ourButton.on("pointertap", (e) => {
+                console.log(e);
+                let color = 0xFFFFFF * Math.random();
+                // buttonBody.tint = color;
+            });
+            
+            // hover listener
+            ourButton.on("pointerover", (e) => {
+                buttonBody.alpha = 0.7;
+            });
+            ourButton.on("pointerout", (e) => {
+                buttonBody.alpha = 1;
+            });
+
+            // draggable event listeners
+            ourButton.dragging = false;
+            offsetX = 0;
+            offsetY = 0;
+
+            ourButton.on("pointerdown", (e) => {
+                ourButton.dragging = true;
+                offsetX = ourButton.x - e.data.global.x;
+                offsetY = ourButton.y - e.data.global.y;
+            })
+
+            ourButton.on("pointermove", (e) => {
+                if (ourButton.dragging) {
+                    ourButton.x = e.data.global.x + offsetX;
+                    ourButton.y = e.data.global.y + offsetY;
+                }
+            });
+
+            ourButton.on("pointerup", (e) => {
+                ourButton.dragging = false;
+            });
+
+            return ourButton;
+        }
+
+        let button = makeButton();
+        button.position.set(100, 50);
+
+        let button2 = makeButton();
+        button2.position.set(200, 200);
+        button2.label.text = "Other Button";
+
+        // app.stage.addChild(button);
+        // app.stage.addChild(button2);
+
+        function makeToggle() {
+            let myButton = makeButton();
+            myButton.isOn = false;
+
+            myButton.body.tint = 0xFF0000;
+
+            myButton.on('pointertap', () => {
+                myButton.isOn = !myButton.isOn;
+
+                if (myButton.isOn) myButton.body.tint = 0x00FF00;
+                else myButton.body.tint = 0xFF0000;
+            });
+
+            return myButton;
+        }
+
+        let toggle = makeToggle();
+        toggle.y = 200;
+        // app.stage.addChild(toggle);
+
+        function makeSlider() {
+            // create container
+            let ourButton = new PIXI.Container();
+            ourButton.interactive = true;
+            
+            //value from 0.0 to 1.0
+            ourButton.value = 0;
+
+            // the track
+            let theTrack = new PIXI.Graphics();
+            theTrack.beginFill(0xCCCCCC);
+            theTrack.drawRect(0, -10, 300, 20);
+            ourButton.addChild(theTrack);
+
+            // the slide
+            let theSlide = new PIXI.Graphics();
+            theSlide.interactive = true;
+            theSlide.beginFill(0xEEEEEE);
+            theSlide.drawRect(-25, -25, 50, 50);
+
+            ourButton.addChild(theSlide);
+
+            theSlide.dragging = false;
+
+            theSlide.on("pointerdown", (e) => {
+                theSlide.dragging = true;
+            });
+
+            theSlide.on("pointermove", (e) => {
+                if (theSlide.dragging) {
+                    let newX = e.data.global.x - ourButton.getGlobalPosition().x;
+                    let newY = e.data.global.y - ourButton.getGlobalPosition().y;
+
+                    if (newX > theTrack.width) newX = theTrack.width;
+                    if (newX < 0) newX = 0;
+
+                    ourButton.value = newX / theTrack.width;
+                    theSlide.x = newX;
+                    console.log(ourButton.value);
+                }
+            });
+            
+            theSlide.on("pointerup", (e) => {
+                theSlide.dragging = false;
+            })
+
+            theSlide.on("pointerupoutside", (e) => {
+                theSlide.dragging = false;
+            })
+
+            return ourButton;
+        }
+
+        let slider = makeSlider();
+        slider.position.set(100, 200);
+        app.stage.addChild(slider);
+    </script>
+</body>

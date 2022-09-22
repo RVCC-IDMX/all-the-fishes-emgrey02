@@ -40,3 +40,6 @@ https://www.pngwing.com/en/free-png-buzjv
 
 - lone swimming fish
 <a href='https://pngtree.com/so/hand'>hand png from pngtree.com/</a>
+
+- star
+Husein Aziz, CC BY 3.0 US <https://creativecommons.org/licenses/by/3.0/us/deed.en>, via Wikimedia Commons

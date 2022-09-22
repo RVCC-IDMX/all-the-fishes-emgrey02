@@ -75,6 +75,8 @@
         })
 
         // set anchor, scale, and place 4 main fish
+        yellowFish.interactive = true;
+
         yellowFish.anchor.set(0.5);
         parrotFish.anchor.set(0.5);
         redFish.anchor.set(0.5);
@@ -92,6 +94,28 @@
         parrotFish.position.set(200, 300);
         redFish.position.set(350, 200);
         byFish.position.set(500, 400);
+
+        // draggable event listeners
+        let dragging = false;
+        offsetX = 0;
+        offsetY = 0;
+
+        yellowFish.on("pointerdown", (e) => {
+            dragging = true;
+            offsetX = yellowFish.x - e.data.global.x;
+            offsetY = yellowFish.y - e.data.global.y;
+        })
+
+        yellowFish.on("pointermove", (e) => {
+            if (dragging) {
+                yellowFish.x = e.data.global.x + offsetX;
+                yellowFish.y = e.data.global.y + offsetY;
+            }
+        });
+
+        yellowFish.on("pointerup", (e) => {
+            dragging = false;
+        });
 
         // position swim fish
         swimFish.anchor.set(0.5);
@@ -142,6 +166,106 @@
         // }
         let forwards = true;
 
+        function makeButton() {
+            // create container
+            let ourButton = new PIXI.Container();
+            ourButton.interactive = true;
+
+            // create button body
+            let buttonBody = new PIXI.Graphics();
+            buttonBody.beginFill(0xEEEEEE);
+            buttonBody.drawRect(0, 0, 200, 50);
+            ourButton.addChild(buttonBody);
+
+            let buttonText = new PIXI.Text('Change the swimming fish\'s color');
+            buttonText.scale.set(.5);
+            buttonText.anchor.set(.5);
+            buttonText.position.set(buttonBody.width / 2, buttonBody.height / 2);
+            ourButton.addChild(buttonText);
+
+            ourButton.label = buttonText;
+            ourButton.body = buttonBody;
+
+            // click listener
+            ourButton.on("pointertap", (e) => {
+                swimFish.tint = 0xFFFFFF * Math.random();
+            });
+            
+            // hover listener
+            ourButton.on("pointerover", (e) => {
+                buttonBody.alpha = 0.7;
+            });
+            ourButton.on("pointerout", (e) => {
+                buttonBody.alpha = 1;
+            });
+
+            return ourButton;
+        }
+
+        let button = makeButton();
+        button.position.set(420, 10);
+        app.stage.addChild(button);
+
+        function makeSlider() {
+            // create container
+            let ourButton = new PIXI.Container();
+            ourButton.interactive = true;
+            
+            //value from 0.0 to 1.0
+            ourButton.value = 0;
+
+            // the track
+            let theTrack = new PIXI.Graphics();
+            theTrack.beginFill(0xFfffff);
+            theTrack.drawRect(0, -10, 300, 10);
+            ourButton.addChild(theTrack);
+
+            // the slide
+            let theSlide = PIXI.Sprite.from("images/star.svg");
+            theSlide.interactive = true;
+            theSlide.anchor.set(.5);
+            theSlide.scale.set(.5);
+            theSlide.position.set(10, -3);
+            // theSlide.beginFill(0xEEEEEE);
+            // theSlide.drawRect(-25, -25, 50, 50);
+
+            ourButton.addChild(theSlide);
+
+            theSlide.dragging = false;
+
+            theSlide.on("pointerdown", (e) => {
+                theSlide.dragging = true;
+            });
+
+            theSlide.on("pointermove", (e) => {
+                if (theSlide.dragging) {
+                    let newX = e.data.global.x - ourButton.getGlobalPosition().x;
+                    let newY = e.data.global.y - ourButton.getGlobalPosition().y;
+
+                    if (newX > theTrack.width) newX = theTrack.width;
+                    if (newX < 0) newX = 0;
+
+                    ourButton.value = newX / theTrack.width;
+                    theSlide.x = newX;
+                    swimFish.rotation = (ourButton.value * 10);
+                }
+            });
+            
+            theSlide.on("pointerup", (e) => {
+                theSlide.dragging = false;
+            })
+
+            theSlide.on("pointerupoutside", (e) => {
+                theSlide.dragging = false;
+            })
+
+            return ourButton;
+        }
+
+        let slider = makeSlider();
+        slider.position.set(30, 40);
+        app.stage.addChild(slider);
+
         // loop de loop and pull, and your shoe's all lookin good
         let loop = () => {
             // make a series of diff wobbles
@@ -151,7 +275,7 @@
             let wobble3 = Math.sin(time / 200);
 
             // apply wobbles to main fish on different axes
-            yellowFish.y = 100 + wobble;
+            // yellowFish.y = 100 + wobble;
             parrotFish.y = 300 + wobble2;
 
             redFish.x = 400 + wobble;
@@ -172,7 +296,7 @@
 
             if (fishContainer.x > 640) {
                 fishContainer.x = -200;
-                fishContainer.y = Math.random() * 380;
+                fishContainer.y = Math.random() * 280;
 
                 cuteFish.forEach(fish => {
                     fish.position.set(Math.random() * 100 + 100, Math.random() * 100 + 100);
