@@ -172,14 +172,15 @@
             ourButton.interactive = true;
 
             // create button body
-            let buttonBody = new PIXI.Graphics();
-            buttonBody.beginFill(0xEEEEEE);
-            buttonBody.drawRect(0, 0, 200, 50);
+            let buttonBody = PIXI.Sprite.from("images/button.png");
             ourButton.addChild(buttonBody);
+            buttonBody.scale.set(.8);
+            buttonBody.anchor.set(.5);
 
-            let buttonText = new PIXI.Text('Change the swimming fish\'s color');
+            let buttonText = new PIXI.Text('Change the swimming\nfish\'s color');
             buttonText.scale.set(.5);
             buttonText.anchor.set(.5);
+            buttonText.style.align = "center";
             buttonText.position.set(buttonBody.width / 2, buttonBody.height / 2);
             ourButton.addChild(buttonText);
 
@@ -193,17 +194,20 @@
             
             // hover listener
             ourButton.on("pointerover", (e) => {
-                buttonBody.alpha = 0.7;
+                buttonBody.tint = 0xF84EAE;
+                buttonText.style.fill = 0xFFFFFF;
+                
             });
             ourButton.on("pointerout", (e) => {
-                buttonBody.alpha = 1;
+                buttonBody.tint = 0xFFFFFF;
+                buttonText.style.fill = 0x000000;
             });
 
             return ourButton;
         }
 
         let button = makeButton();
-        button.position.set(420, 10);
+        button.position.set(520, 50);
         app.stage.addChild(button);
 
         function makeSlider() {
@@ -216,7 +220,7 @@
 
             // the track
             let theTrack = new PIXI.Graphics();
-            theTrack.beginFill(0xFfffff);
+            theTrack.beginFill(0xFA80C5);
             theTrack.drawRect(0, -10, 300, 10);
             ourButton.addChild(theTrack);
 
@@ -226,8 +230,6 @@
             theSlide.anchor.set(.5);
             theSlide.scale.set(.5);
             theSlide.position.set(10, -3);
-            // theSlide.beginFill(0xEEEEEE);
-            // theSlide.drawRect(-25, -25, 50, 50);
 
             ourButton.addChild(theSlide);
 
