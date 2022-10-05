@@ -43,13 +43,13 @@
         // const swimFish = PIXI.Sprite.from("images/thefish.png");
 
         // //load school
-        // const cuteFish1 = PIXI.Sprite.from("images/cute-fish.png");
-        // const cuteFish2 = PIXI.Sprite.from("images/cute-fish.png");
-        // const cuteFish3 = PIXI.Sprite.from("images/cute-fish.png");
-        // const cuteFish4 = PIXI.Sprite.from("images/cute-fish.png");
-        // const cuteFish5 = PIXI.Sprite.from("images/cute-fish.png");
-        // const cuteFish6 = PIXI.Sprite.from("images/cute-fish.png");
-        // const cuteFish7 = PIXI.Sprite.from("images/cute-fish.png");
+        const cuteFish1 = PIXI.Sprite.from("images/thefish.png");
+        const cuteFish2 = PIXI.Sprite.from("images/thefish.png");
+        const cuteFish3 = PIXI.Sprite.from("images/thefish.png");
+        const cuteFish4 = PIXI.Sprite.from("images/thefish.png");
+        const cuteFish5 = PIXI.Sprite.from("images/thefish.png");
+        const cuteFish6 = PIXI.Sprite.from("images/thefish.png");
+        const cuteFish7 = PIXI.Sprite.from("images/thefish.png");
 
         //load bubbles
         const bubble1 = PIXI.Sprite.from("images/bubble.png");
@@ -124,22 +124,22 @@
         // swimFish.position.set(200,200);
 
         // create container to hold school of fish
-        // const fishContainer = new PIXI.Container();
-        // fishContainer.position.set(0,0);
+        const fishContainer = new PIXI.Container();
+        fishContainer.position.set(0,0);
 
         // // scale + position school of fish
-        // const cuteFish = [cuteFish1, cuteFish2, cuteFish3, cuteFish4, cuteFish5, cuteFish6, cuteFish7];
+        const cuteFish = [cuteFish1, cuteFish2, cuteFish3, cuteFish4, cuteFish5, cuteFish6, cuteFish7];
         
-        // cuteFish.forEach(fish => {
-        //     fish.scale.set(-0.05, .05);
-        //     fish.position.set(Math.random() * 100 + 100, Math.random() * 100 + 100);
-        //     fishContainer.addChild(fish);
-        // })
+        cuteFish.forEach(fish => {
+            fish.scale.set(-0.08, .08);
+            fish.position.set(Math.random() * 200 + 200, Math.random() * 200);
+            fishContainer.addChild(fish);
+        })
 
         // add sprites to stage ( in correct order )
         app.stage.addChild(coralReef);
 
-        // app.stage.addChild(fishContainer);
+        app.stage.addChild(fishContainer);
 
         app.stage.addChild(bubble1);
         app.stage.addChild(bubble2);
@@ -619,6 +619,14 @@
             });   
         }
 
+        let moveSchool = async () => {
+            await Animate.wobbleto(fishContainer, {x: Math.random() * 400, y: Math.random() * 300, duration: Math.random() * 6000 + 3000});
+            cuteFish.forEach(async (fish) => {
+                await Animate.to(fish, {x: Math.random() * 200 + 200, y: Math.random() * 200, duration: 500});
+            })
+            moveSchool();
+        }
+
         yellowFish.interactive = true;
         coralReef.interactive = true;
 
@@ -635,6 +643,7 @@
         moveRedFish();
         danceByFish();
         moveBubbles();
+        moveSchool();
 
         
 
