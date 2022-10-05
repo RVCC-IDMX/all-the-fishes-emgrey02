@@ -7,6 +7,18 @@
     <title>All the Fishes</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
+    <style>
+
+        body {
+            height: 100vh;
+            display: grid;
+        }
+
+        canvas {
+            place-self: center;
+        }
+        
+    </style>
 </head>
 <body>
     
@@ -23,10 +35,9 @@
 
         // load fishes
         const yellowFish = PIXI.Sprite.from("images/yellow-fish.png");
-
         const parrotFish = PIXI.Sprite.from("images/parrot-fish.png");
-        // const redFish = PIXI.Sprite.from("images/red-fish.png");
-        // const byFish = PIXI.Sprite.from("images/by-fish.png");
+        const redFish = PIXI.Sprite.from("images/red-fish.png");
+        const byFish = PIXI.Sprite.from("images/by-fish.png");
 
         // //load swimming fish
         // const swimFish = PIXI.Sprite.from("images/thefish.png");
@@ -60,9 +71,8 @@
         const bubbles = [bubble1, bubble2, bubble3, bubble4, bubble5, bubble6]
 
         bubbles.forEach(bubble => {
-            bubble.scale.set(.15);
             bubble.anchor.set(0.5);
-            bubble.position.set(Math.random() * 640, Math.random() * 480);
+            bubble.position.set(Math.random() * 640, 500);
             bubble.scale.set(Math.random() / 5);
         })
 
@@ -70,21 +80,21 @@
 
         yellowFish.anchor.set(0.5);
         parrotFish.anchor.set(0.5);
-        // redFish.anchor.set(0.5);
-        // byFish.anchor.set(0.5);
+        redFish.anchor.set(0.5);
+        byFish.anchor.set(0.5);
 
         yellowFish.scale.set(.6);
         parrotFish.scale.set(.4);
-        // redFish.scale.set(.5);
-        // byFish.scale.set(.6);
+        redFish.scale.set(.5);
+        byFish.scale.set(.6);
 
         yellowFish.scale.x *= -1;
-        // byFish.scale.x *= -1;
+        byFish.scale.x *= -1;
 
-        yellowFish.position.set(100, 200);
-        parrotFish.position.set(200, 300);
-        // redFish.position.set(350, 200);
-        // byFish.position.set(500, 400);
+        yellowFish.position.set(200, 150);
+        parrotFish.position.set(300, 300);
+        redFish.position.set(350, 200);
+        byFish.position.set(500, 400);
 
         // draggable event listeners
         // let dragging = false;
@@ -140,8 +150,8 @@
 
         app.stage.addChild(yellowFish);
         app.stage.addChild(parrotFish);
-        // app.stage.addChild(redFish);
-        // app.stage.addChild(byFish);
+        app.stage.addChild(redFish);
+        app.stage.addChild(byFish);
 
         // app.stage.addChild(swimFish);
 
@@ -249,44 +259,30 @@
         // slider.position.set(30, 40);
         // app.stage.addChild(slider);
 
-        yellowFish.interactive = true;
-        yellowFish.defaultCursor = 'pointer';
-        yellowFish.on("pointertap", () => {
-            doTheThing();
-        })
+        
 
         // time to animate
         let Animate = {};
 
         Animate.to = function(obj,end) {
-
-            //Make it a promise:
             return new Promise( (resolve,reject) => {
 
-                //Set up initial state parameters
-                //We need to know where we started for this to work
-                //Just x and y to start
-                var start = {
+                let start = {
                     x : obj.x,
                     y : obj.y
                 }
 
-                //Set some defaults
                 if (end.duration == undefined) end.duration = 0;
                 if (end.easing == undefined) end.easing = Animate.linear; 
 
-                //We need to know when we've started animating
                 var startTime = Date.now();
 
-                //This will be our personal animation loop
                 function loop() {
 
-                    //Calculate our delta
                     let ticker = Date.now() - startTime;
                     let delta = ticker/end.duration;
                     let ease = end.easing(delta);
 
-                    //If we're done, just snap to the end!
                     if (delta >= 1 || end.duration === 0) {
                         obj.x = end.x;
                         obj.y = end.y;
@@ -295,32 +291,67 @@
                         return;
                     }
 
-                    //Interpolation function
                     let lerp = (a, b, n) => {
                         return (1 - n) * a + n * b;
                     }
 
-                    //Interpolate (lerp) our x coordinate
                     obj.x = lerp(start.x,end.x,ease);
-
-                    //Lerp our y coordinate
                     obj.y = lerp(start.y,end.y,ease);
 
-                    //Start the loop going!
                     obj.animationID = requestAnimationFrame(loop);
 
                 }
-
-                //Clear the animation ID so there aren't competing loops
                 cancelAnimationFrame(obj.animationID);
-
-                //Begin the loop!
                 loop();
-
-            //End Promise
             });
 
         };
+
+        Animate.wobbleto = function(obj, end) {
+            return new Promise((resolve, reject) => {
+                let start = {
+                    x: obj.x,
+                    y: obj.y,
+                }
+
+                if (end.duration == undefined) end.duration = 0;
+                if (end.easing == undefined) end.easing = Animate.linear; 
+
+                var startTime = Date.now();
+
+                function loop() {
+
+                    let ticker = Date.now() - startTime;
+                    let delta = ticker/end.duration;
+                    let ease = end.easing(delta);
+
+                    let wobble1 = Math.sin(ticker/200)*10;
+
+                    if (delta >= 1 || end.duration === 0) {
+                        obj.x = end.x;
+                        obj.y = end.y;
+                        
+                        resolve();
+                        return;
+                    }
+
+                    
+                    let lerp = (a, b, n) => {
+                        return (1 - n) * a + n * b;
+                    }
+
+
+                    obj.x = lerp(start.x,end.x,ease);
+                    obj.y = lerp(start.y,end.y,ease);
+                    obj.y += wobble1;
+                    obj.animationID = requestAnimationFrame(loop);
+
+                }
+                cancelAnimationFrame(obj.animationID);
+                loop();
+
+            });
+        }
 
         Animate.rotate = (obj, end) => {
             return new Promise( (resolve,reject) => {
@@ -333,6 +364,11 @@
                 if (end.easing == undefined) end.easing = Animate.linear; 
 
                 var startTime = Date.now();
+
+                if (start.angle == end.angle) {
+                    resolve();
+                    return;
+                }
 
                 function loop() {
 
@@ -441,7 +477,63 @@
                         return (1 - n) * a + n * b;
                     }
 
-                    obj.tint = lerp(start.t, end.t, ease);
+                    // https://gist.github.com/nikolas/b0cce2261f1382159b507dd492e1ceef
+
+                    let sRed = (start.t & 0xff0000) >> 16;
+                    let sGreen = (start.t & 0x00ff00) >> 8;
+                    let sBlue = (start.t & 0x0000ff);
+
+                    let eRed = (end.t & 0xff0000) >> 16;
+                    let eGreen = (end.t &0x00ff00) >> 8;
+                    let eBlue = (end.t & 0x0000ff);
+
+                    let rRed = Math.round(lerp(sRed, eRed, ease));
+                    let rGreen = Math.round(lerp(sGreen, eGreen, ease));
+                    let rBlue = Math.round(lerp(sBlue, eBlue, ease));
+
+                    obj.tint = (rRed << 16) + (rGreen << 8) + (rBlue | 0);
+
+                    obj.animationID = requestAnimationFrame(loop);
+
+                }
+                cancelAnimationFrame(obj.animationID);
+                loop();
+            });
+        }
+
+        Animate.alpha = (obj, end) => {
+            return new Promise( (resolve,reject) => {
+
+                var start = {
+                    a: obj.alpha,
+                }
+
+                if (end.duration == undefined) end.duration = 0;
+                if (end.easing == undefined) end.easing = Animate.linear; 
+
+                var startTime = Date.now();
+
+                function loop() {
+
+                    //Calculate our delta
+                    let ticker = Date.now() - startTime;
+                    let delta = ticker/end.duration;
+                    let ease = end.easing(delta);
+
+                    //If we're done, just snap to the end!
+                    if (delta >= 1 || end.duration === 0) {
+                        obj.alpha = end.a;
+                        
+                        resolve();
+                        return;
+                    }
+
+                    //Interpolation function
+                    let lerp = (a, b, n) => {
+                        return (1 - n) * a + n * b;
+                    }
+
+                    obj.alpha = lerp(start.a, end.a, ease);
 
                     obj.animationID = requestAnimationFrame(loop);
 
@@ -469,28 +561,84 @@
 
         Animate.easeInOut = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 
-        let moveAround = async () => {
-            Animate.from(yellowFish, {x: 50, y: 100});
-            await Animate.to(yellowFish, {x: 300, y: 250, duration: 3000, easing:Animate.easeInOut});
-            await Animate.rotate(yellowFish, {angle: 230, duration: 2000, easing:Animate.easeIn});
-            await Animate.to(yellowFish, {x: 50, y: 100, duration: 4000, easing:Animate.easeInOut});
-            await Animate.rotate(yellowFish, {angle: 30, duration: 2000, easing:Animate.easeIn});
-            await Animate.scale(yellowFish, {sx: -.6, sy: .2, duration: 2000, easing:Animate.easeIn});
-            await Animate.tint(yellowFish, {t: 0x358e61, duration: 3000, easing: Animate.linear});
-            await Animate.scale(yellowFish, {sx: -1, sy: 1, duration: 2000, easing:Animate.easeIn});
-            await Animate.tint(yellowFish, {t: 0xffffff, duration: 3000, easing: Animate.linear});
-            moveAround();
+        let moveYellowFish = async () => {
+            Animate.from(yellowFish, {x: 200, y: 150});
+            await Animate.to(yellowFish, {x: 200, y: 130, duration: 1500, easing: Animate.easeOut});
+            await Animate.to(yellowFish, {x: 200, y: 150, duration: 1500, easing: Animate.easeInOut});
+            moveYellowFish();
         }
 
         let doTheThing = async () => {
-            await Animate.to(yellowFish, {x: 200, y: 0, duration: 2000, easing:Animate.easeIn});
-            await Animate.to(yellowFish, {x: 50, y: 100, duration: 3000, easing:Animate.easeOut});
-            moveAround();
+            await Animate.rotate(yellowFish, {angle: -90, duration: 500, easing:Animate.easeInOut});
+            await Animate.to(yellowFish, {x: 200, y: 0, duration: 1000, easing:Animate.easeOut});
+            await Animate.rotate(yellowFish, {angle: 90, duration: 500, easing:Animate.easeInOut});
+            await Animate.to(yellowFish, {x: 200, y: 150, duration: 1500, easing:Animate.easeInOut});
+            await Animate.rotate(yellowFish, {angle: 0, duration: 500, easing:Animate.easeInOut});
+            moveYellowFish();
         }
 
-        moveAround();
+        let moveParrotFish = async () => {
+            await Animate.wobbleto(parrotFish, {x: 100, y: 300, duration: 2000, easing: Animate.linear});
+            await Animate.scale(parrotFish, {sx: -.4, sy: .4, duration: 500, easing: Animate.easeIn});
+            await Animate.wobbleto(parrotFish, {x: 300, y: 300, duration: 2000, easing: Animate.linear});
+            await Animate.scale(parrotFish, {sx: .4, sy: .4, duration: 500, easing: Animate.easeIn});
+            moveParrotFish();
+        }
+
+        let callRedFish = async (e) => {
+            let posX = e.data.global.x;
+            let posY = e.data.global.y;
+            await Animate.wobbleto(redFish, {x: posX, y: posY, duration: 2000, easing: Animate.easeInOut});
+            await Animate.scale(redFish, {sx: -.3, sy: .5, duration: 500, easing: Animate.easeIn});
+            await Animate.scale(redFish, {sx: .5, sy: .5, duration: 500, easing: Animate.easeIn});
+            moveRedFish();
+        }
+
+        let moveRedFish = async () => {
+            await Animate.scale(redFish, {sx: .6, sy: .6, duration: 800, easing: Animate.easeOut});
+            await Animate.scale(redFish, {sx: .5, sy: .5, duration: 500, easing: Animate.easeOut});
+            moveRedFish();
+        }
+
+        let danceByFish = async () => {
+            await Animate.tint(byFish, {t: 0x00ff00, duration: 3000});
+            await Animate.rotate(byFish, {angle: 360, duration: 2000});
+            await Animate.alpha(byFish, {a: 1, duration: 800});
+            await Animate.tint(byFish, {t: 0xcc0000, duration: 3000});
+            await Animate.rotate(byFish, {angle: -360, duration: 2000});
+            await Animate.alpha(byFish, {a: .5, duration: 800});
+            danceByFish();
+        }
+
+        let moveBubbles = async () => {
+            bubbles.forEach(async (bubble) => {
+                await Animate.to(bubble, {x: bubble.x, y: -100, duration: Math.random() * 4000 + 2000});
+                bubble.position.set(Math.random() * 640, 500);
+                bubble.scale.set(Math.random() / 5);
+                moveBubbles();
+            });   
+        }
+
+        yellowFish.interactive = true;
+        coralReef.interactive = true;
+
+        yellowFish.on("pointertap", () => {
+            doTheThing();
+        });
+
+        coralReef.on("pointertap", (e) => {
+            callRedFish(e);
+        })
+
+        moveYellowFish();
+        moveParrotFish();
+        moveRedFish();
+        danceByFish();
+        moveBubbles();
 
         
+
+
 
     </script>
 
